@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:mvc="http://www.springframework.org/schema/mvc"
+xmlns:context="http://www.springframework.org/schema/context"
+xmlns:aop="http://www.springframework.org/schema/aop" 
+xmlns:tx="http://www.springframework.org/schema/tx"
+xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/mvc 
+http://www.springframework.org/schema/mvc/spring-mvc-2.5.xsd
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-2.5.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+ http://www.springframework.org/schema/aop
+ http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"  default-autowire="byType">
+	
+  
+   <!-- 配置数据源属性文件，在这里使用property文件的目的：
+   		如果修改的是只加载一次的xml配置文件，则当我们修改该文件的时候，需要重新启动项目。
+   		如果不是只加载一次，则不用重启项目
+   		使用property文件的好处就是：我们可以直接修改property文件，而不用重启项目
+   		property文件是以键值对形式来存储内容的。key=value，不同的key-value通过换行表示
+   		其中，key不能重复。
+    -->
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<property name="locations">    
+      <list>
+	    <value>classpath:jdbc.properties</value>    
+	  </list>   
+	</property>  
+  </bean>
+  
+	<!-- 配置数据源 -->
+  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"> 	
+  	<!-- 这里${jdbc.driverName}指的是从context上下文中取得相应的value，其实就是properties文件中的key --> 
+    <property name="driverClassName" value="${jdbc.driverName}"/>  
+    <property name="url" value="${jdbc.url}"/>  
+    <property name="username" value="${jdbc.userName}"/>  
+    <property name="password" value="${jdbc.password}"/>
+  </bean>
+		 
+	 <!-- 配置SqlMapClient对象 
+<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">  
+    <property name="configLocation" value="classpath:SqlMapConfig.xml"/>
+    <property name="dataSource" ref="dataSource"/>  
+ </bean>
+ 
+<bean id="sqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
+    <property name="sqlMapClient" ref="sqlMapClient"/>
+ </bean>
+ -->
+ 	<!-- 
+ 		<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+			</props>
+		</property>
+			<property name="packagesToScan">
+			 	<list>
+			 		<value>com.jk.harddisk.common.dto</value>
+			 	</list>
+			</property> 
+		</bean>
+ 	 -->
+  		<!-- 事务管理 -->
+		<tx:annotation-driven/>		
+		<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+				 <property name="dataSource" ref="dataSource" />  
+		</bean> 
+		<!-- 启动spring事务注解 -->
+		<tx:annotation-driven transaction-manager="transactionManager"/>    
+</beans> 
